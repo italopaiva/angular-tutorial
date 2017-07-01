@@ -3,12 +3,13 @@
 
     angular.module('app.auth').controller('LoginController', LoginController);
 
-    LoginController.$inject = [];
+    LoginController.$inject = ['authService'];
 
-    function LoginController(){
+    function LoginController(authService){
         var vm = this;
 
         vm.login = login;
+        vm.status = '';
 
         vm.user = {
             username: '',
@@ -16,7 +17,11 @@
         };
 
         function login(){
-            // Perform the login operation here
+            authService.authenticate(vm.user).then(function(userData){
+                vm.status = 'Usuário autenticado!';
+            }, function(){
+                vm.status = 'Credenciais inválidas!';
+            });
         }
     }
 })();

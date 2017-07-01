@@ -5,8 +5,15 @@
     <script src="../app.module.js"></script>
     <script src="auth.module.js"></script>
     <script src="login.controller.js"></script>
+    <script src="auth.service.js"></script>
   </head>
   <body ng-controller="LoginController as ctrl">
+
+    <h2>
+        User Login
+        <br><small>Tip: password 'root' will always work...</small>
+    </h2>
+
     <form novalidate>
         <label for="username">Username</label>
         <input type="text" name="username" ng-model="ctrl.user.username">
@@ -17,5 +24,9 @@
         <br><br>
         <button ng-click="ctrl.login()">Login</button>
     </form>
+
+    <br><br>
+    <p ng-show=" ctrl.status != '' ">Status do login: {{ ctrl.status }}</p>
+
   </body>
 </html>

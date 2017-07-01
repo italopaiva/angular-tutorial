@@ -281,3 +281,129 @@ Pra registrar uma função da controller que será acionada quando o botão for 
 
 É uma boa prática utilizar a sintaxe *controllerAs* para receber uma nova instância da controller, evitar colocar muita coisa no $scope e permite acessar a API da controller através de um objeto na view (ver `explicação do John Papa <https://github.com/johnpapa/angular-styleguide/tree/master/a1#controlleras-view-syntax>`_).
 A variável declarada como *as* (*ctrl* no exemplo acima) representa o *vm* na controller.
+
+
+A camada de Serviço
+--------------------
+
+Já temos a nossa view e controller se comunicando, agora falta implementar a autenticação do usuário com os dados fornecidos, que deverá consultar um servidor de back-end. Não se precipite, não vamos fazer isso no método :code:`login()` da controller.
+
+As controllers devem ser o mais simples possível para respeitar o princípio da responsabilidade única.
+Portanto, vamos adicionar uma camada a mais à nossa aplicação para se comunicar com o servidor de back-end e realizar a operação de autenticação do usuário. Vamos criar um serviço!
+
+Vamos criar o nosso serviço de autenticação '*auth.service.js*' na pasta '*app/auth*':
+
+.. code-block:: javascript
+
+  (function(){
+      'use strict';
+
+      angular.module('app.auth').factory('authService', authService);
+
+      authService.$inject = ['$http'];
+
+      function authService($http){
+
+          return {
+              authenticate: authenticate
+          };
+
+          function authenticate(credentials) {
+              var url = 'http://backend.URL.com/login';
+              return $http.post(url, credentials).then(function(userData){
+                  return userData;
+              });
+          }
+      }
+  })();
+
+Para criar um serviço utilizamos o método :code:`factory` ou :code:`service` do angular (`segundo o John Papa <https://github.com/johnpapa/angular-styleguide/tree/master/a1#style-y040>`_, é preferível utilizar sempre factories).
+
+O serviço de autenticação tem como dependência o serviço *$http* do angular, que funciona como um cliente HTTP para realizar requisições.
+A API do serviço (que é tudo que está sendo retornado da factory) de autenticação consiste em um método :code:`authenticate()` que vai fazer uma requisição HTTP POST para o back-end informando as credenciais do usuário e retorna
+os dados do usuário devolvido pelo back-end (variável :code:`userData`).
+
+Se você não está familiarizado com a sintaxe :code:`.then()`, dá uma olhada no `material sobre promises do Angular <https://docs.angularjs.org/api/ng/service/$q>`_.
+
+
+Agora que temos o nosso serviço pronto, vamos utilizá-lo na nossa controller para realizar a autenticação do usuário.
+A controller de login vai ficar assim:
+
+.. code-block:: javascript
+
+  (function(){
+      'use strict';
+
+      angular.module('app.auth').controller('LoginController', LoginController);
+
+      LoginController.$inject = ['authService'];
+
+      function LoginController(authService){
+          var vm = this;
+
+          vm.login = login;
+          vm.status = '';
+
+          vm.user = {
+              username: '',
+              password: ''
+          };
+
+          function login(){
+              authService.authenticate(vm.user).then(function(userData){
+                  vm.status = 'Usuário autenticado!';
+              }, function(){
+                  vm.status = 'Credenciais inválidas!';
+              });
+          }
+      }
+  })();
+
+
+O serviço de autenticação criado foi injetado na controller e chamado no método :code:`login()` da controller, passando os dados informados pelo usuário. Caso a autenticação for bem sucedida o primeiro argumento do :code:`.then()` será chamado (no caso, vai setar o vm.status para 'Usuário autenticado!') e caso não for, o segundo argumento será chamado (no caso, vai setar o vm.status para 'Credenciais inválidas!').
+
+Para finalizar, vamos alterar nossa página de login para mostrar o status do login:
+
+.. code-block:: html
+
+  <!DOCTYPE html>
+  <html ng-app="app">
+    <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+      <script src="../app.module.js"></script>
+      <script src="auth.module.js"></script>
+      <script src="login.controller.js"></script>
+      <script src="auth.service.js"></script>
+    </head>
+    <body ng-controller="LoginController as ctrl">
+
+      <h2>
+          User Login
+      </h2>
+
+      <form novalidate>
+          <label for="username">Username</label>
+          <input type="text" name="username" ng-model="ctrl.user.username">
+          <br><br>
+          <label for="password">Password</label>
+          <input type="password" name="password" ng-model="ctrl.user.password">
+
+          <br><br>
+          <button ng-click="ctrl.login()">Login</button>
+      </form>
+
+      <br><br>
+      <p ng-show=" ctrl.status != '' ">Status do login: {{ ctrl.status }}</p>
+
+    </body>
+  </html>
+
+Para mostrar o status somente caso ele não esteja vazio, utilizamos outra diretiva do angular, o :code:`ng-show`, que só mostra o conteúdo do elemento no qual a diretiva é aplicada caso o valor da expressão passada para ela seja verdadeiro.
+
+Pronto, nosso formulário para autenticação de usuário em AngularJS está pronto!
+
+
+Conclusão
+=========
+
+Este tutorial apresentou a implementação de um formulário simples de autenticação de usuário utilizando AngularJS e seguindo as boas práticas da comunidade. Foi possível conhecer um pouco da arquitetura do Angular e algumas de suas diretivas mais comuns. O Angular oferece muito mais ferramentas e diretivas que podem ser conferidas na documentação oficial.
