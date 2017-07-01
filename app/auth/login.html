@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="../app.module.js"></script>
+    <script src="auth.module.js"></script>
+    <script src="login.controller.js"></script>
+  </head>
+  <body ng-controller="LoginController as ctrl">
+    <form novalidate>
+        <label for="username">Username</label>
+        <input type="text" name="username" ng-model="ctrl.user.username">
+        <br><br>
+        <label for="password">Password</label>
+        <input type="password" name="password" ng-model="ctrl.user.password">
+
+        <br><br>
+        <button ng-click="ctrl.login()">Login</button>
+    </form>
+  </body>
+</html>
