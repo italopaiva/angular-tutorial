@@ -1,0 +1,19 @@
+{
+  "name": "angular-tutorial",
+  "version": "1.0.0",
+  "description": "Angular basic tutorial",
+  "main": "app.js",
+  "scripts": {
+    "test": "karma start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/italopaiva/angular-tutorial.git"
+  },
+  "author": "Ítalo Paiva Batista",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/italopaiva/angular-tutorial/issues"
+  },
+  "homepage": "https://github.com/italopaiva/angular-tutorial#readme"
+}
